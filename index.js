@@ -3,15 +3,24 @@ const app = express()
 const port = 3000
 const crypto = require('crypto');
 
-app.get('/sha1/:link', (req, res) => {
-  let link = req.params.link
-  console.log(link)
-  res.send(sha1get("./cache/wwv" + file +".zip"))
+app.get('/', (req, res) => {
+  res.send("pong")
+  //console.log("ping")
 })
 
-var https = require('https');
+app.get('/sha1/:link', (req, res) => {
+  let link = req.params.link.toString()
+  res.send(sha1get("./cache/wwv" + link +".zip"))
+  //console.log("Generated SHA-1 for file: " + link)
+})
+
+app.get('/download/:link', (req, res) => {
+  let link = req.params.link.toString()
+  res.sendfile("./cache/wwv" + link +".zip")
+  //console.log("./cache/wwv" + link +".zip")
+  //console.log("Sent file: " + link)
+})
 var fs = require('fs');
-var rimraf = require("rimraf");
 
 /*function download(file) {
   var url = "https://github.com/IToncek/WWV/releases/latest/download/wwv" + file + ".zip"
@@ -30,30 +39,12 @@ var rimraf = require("rimraf");
 };*/
 
 function sha1get(path){
-  console.log(path)
   const fileBuffer = fs.readFileSync(path);
   const hashSum = crypto.createHash('sha1');
   hashSum.update(fileBuffer);
 
   const hex = hashSum.digest('hex');
-  console.log(hex)
   return hex;
-}
-
-function makeid(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * 
- charactersLength));
-   }
-   return result;
-}
-
-function cleanup(){
-  rimraf.sync("/cache");
-  fs.mkdirSync('/cache')
 }
 
 app.listen(port, () => {
